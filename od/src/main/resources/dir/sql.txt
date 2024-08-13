@@ -1,0 +1,96 @@
+mysql执行顺序
+
+from 选择表
+on 连接条件
+join 连接
+where 条件过滤
+group by 分组
+聚合函数
+having 分组过滤
+select 选择字段
+distinct 去重
+order by 排序
+limit 分页
+
+窗口函数
+over() 选多少 开多少窗 partition by order by range n preceding
+row_number() 直接添加一列从一开始的索引值
+rank() 碰到相等的直接加一 保持上一个索引值 出现不一样的直接跳到位数  1 1 1 4
+dense_rank() 碰到相等的会跳过 保持上一个索引值 出现不一样的加一  1 1 1 2
+lead() 向下找到窗口内索引值的值 找不到可以设置默认值
+sum() 总和
+count() 条数 注意 * 1 字段 的区别 *统计null
+max()
+min()
+avg() 平均值
+date_add('日期', INTERVAL n DAY) 日期加函数 sub diff 等等
+
+创建表
+在mysql中除了varchar和char是代表字符长度之外，其余的类型都是代表字节长度
+
+sql优化
+1）不要使用select * 使用具体字段去查
+2）不要使用or来连接where的条件 使用union all
+eg：
+select * from student where id= 1 or salary = 3000
+
+select * from student where id=1
+union all
+select * from student where salary=3000
+3）使用varchar代替char字段 尽量使用数字代替字符串优先考虑tinyint
+4）使用explain分析sql执行计划
+type：
+ALL 全表扫描，没有优化，最慢的方式
+index 索引全扫描
+range 索引范围扫描，常用语<，<=，>=，between等操作
+ref 使用非唯一索引扫描或唯一索引前缀扫描，返回单条记录，常出现在关联查询中
+eq_ref 类似ref，区别在于使用的是唯一索引，使用主键的关联查询
+const 当查询是对主键或者唯一键进行精确查询，系统会把匹配行中的其他列作为常数处理
+null MySQL不访问任何表或索引，直接返回结果
+System 表只有一条记录(实际中基本不存在这个情况)
+性能从下到上越来越差
+
+possible_keys：可能用到的索引
+key：实际用到的索引
+5）创建索引 eg：alter table student add index index_name (name)
+6）优化like语句将模糊匹配放在后面 eg： select id,name from student where name like '1%'
+7）防止mysql做隐式数据转换 注意传参在数据库中对应字段的类型
+8）索引不能太多 太多索引会降低 insert/update 的效率 可以考虑读写分离 索引也不适合建在有大量重复数据的字段上
+9）避免在索引列上使用函数 eg：select * from student where date_add(birthday,interval 7 day) >= now(); birthday上有索引
+10）where子句的字段上不要使用表达式 != <> 也可能让索引失效 eg： select * from student where id+1-1=+1
+11）distinct尽量过滤较少的字段
+12）数据库中使用默认值代替null值 is null is not null很可能导致不走索引
+13）查询分页的时候页数太大使用（该方法同样适用于同步数据或者抽取数据） < 过滤 eg：select * from student where id > 上一页最大值（返还回来）limit 100 跳页问题不能使用该方案 只能减少展示字段 通过覆盖索引查 比如只展示主键和加了索引的字段
+14）提高group by语句的效率 可以在执行到该语句前，把不需要的记录过滤掉
+15）小表驱动大表 in 和 exists in先查里面的 exists先查外面的尽量让先查的为小表
+eg :
+select * from student where id in(select id from student where status=1);
+select * from student st where exists (select 1 from student s where st.user_id = s.user.id and status=1)
+16）判断数据存在与否返回count时尽量使用limit 不要count(*)
+17）用连接查询代替子查询
+18）注意最左匹配原则 联合索引 先匹配最左边的
+19）对于重复性低且数据很长的数据列 考虑使用前缀索引
+eg:
+alter table xxx add index(xxx_col_name(n));
+
+sql使用正则匹配
+select user_id, name, mail
+from Users
+where mail regexp '^[a-zA-Z][a-zA-Z0-9_.-]*\\@leetcode\\.com$'
+^
+[a-z] [^a-z] $ \ + *
+
+left join(左联接) 返回包括左表中的所有记录和右表中联结字段相等的记录
+right join(右联接) 返回包括右表中的所有记录和左表中联结字段相等的记录
+inner join(等值连接) 只返回两个表中联结字段相等的行
+outer join(外连接) 可分为左外连接left outer join和右外连接right outer join
+full join 左右连接的全集
+cross join 笛卡尔积 两表相乘输出
+
+join 中 on 和 where 的区别
+on是进行连接的条件，where是查询条件 确定连接条件后嵌套或者衔接where查询
+
+索引
+使用索引之后 就不通过全表扫描来定位数据 而是先通过索引表找到该行数据对应的物理地址然后访问相应的数据
+由于索引底层实现的有序性 可以避免磁盘不同扇区的随机寻址 可以通过磁盘预读使得在磁盘上对数据的访问大致呈顺序的寻址 局部性原理
+1 减少扫描数据量 2 避免排序和临时表 3 将随机io变为顺序io

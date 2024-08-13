@@ -1,0 +1,29 @@
+#全局用户设置
+git config --global user.name / user.email
+#创建文件
+mkdir 文件名
+cd 文件名
+#初始化
+git init
+#提交
+git add
+git commit -m 'xxx'
+git push
+#查看状态
+git status
+#查看文件区别
+git diff 文件名
+#查看提交日志
+git log -pretty=online
+git reflog
+#回退提交
+git reset --hard HEAD^ //上一个版本
+git reset --hard 版本号 //根据版本号回退
+#丢弃文件暂存区修改
+git checkout -- 文件名
+#检出
+git checkout 分支名
+git checkout -b 分支名 //创建并切换到新的分支
+#拉取
+git clone http地址
+

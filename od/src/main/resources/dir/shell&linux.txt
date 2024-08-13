@@ -1,0 +1,132 @@
+#shell
+shebang -> #!
+#!/bin/sh 使用bash解释器
+#!/usr/bin/python 使用python解释器
+#!/usr/bin/env
+
+#变量
+变量和值之间不能有空格
+变量名只能包含数字字母下划线
+不能以数字开头
+不能用标点符号
+变量名严格区分大小写
+单引号变量不识别特殊语法 双引号变量能识别特殊语法 反引号可保存命令并将执行结果赋值给变量
+
+linux的变量存在作用域 父shell和子shell之间变量不互通 sh 或者 bash 开启子shell
+
+name="变量值"
+echo $name
+echo ${name} #打印变量值
+
+echo $? #0代表上一条命令执行成功 1-255代表上一条执行失败
+
+pstree #查看shell位置
+ps -ef --forest #查看进程值级
+
+执行脚本时是开启的子shell执行的 所以变量不会影响到本shell 使用source命令将脚本放在当前shell中执行
+eg：
+[root@localhost learn]# vim make_var.sh
+[root@localhost learn]# cat make_var.sh
+name="daxigua"
+[root@localhost learn]# name="aoliao"
+[root@localhost learn]# bash make_var.sh
+[root@localhost learn]# echo $name
+aoliao
+[root@localhost learn]# source make_var.sh
+[root@localhost learn]# echo $name
+daxigua
+
+本地变量 局部变量 环境变量
+~/.bash_profile ~/.bashrc
+set #展示所有变量
+env #展示全局变量
+declare #同set
+export #显示和设置环境变量
+unset #删除变量或者函数
+
+#特殊变量
+$0 $# $* $@ $$ $! $?
+
+bash内部命令
+echo
+eval 执行多个命令 命令间;分割
+exec
+export
+read
+shift
+
+-n 不换行输出
+-e 解析字符串中的特殊符号
+
+\n 换行
+\r 回车
+\t 四个空格
+\b 退格
+
+#子串
+${var}
+${#var} 变量长度
+${var:start}
+${var:start:length} 提取变量start后长为length的字符
+${var#word} 从开头删除最短的word
+${var##word} 从开头删除最长的word
+${var%word} 从结尾删除最短的word
+${var%%word} 从结尾删除最长的word
+${var/pattern/string} string替代第一个pattern
+${var//pattern/string} string替代所有的pattern
+
+a*c 匹配开头为a 结尾为c的字符串 中间任意个
+wc -l 统计行数
+expr 数值计算
+awk 命令
+echo "${name}" | awk '{print length($0)}'
+time 统计时长
+seq 生成序列命令
+for 命令
+
+for number in {1..100}
+do
+  echo $number
+done
+
+time for n in {1..10000};do char=`seq -s "chaoge" 100`;echo ${#char} &>/dev/null;done
+
+result=${parameter:-word} 如果parameter为空 返回word字符串 赋值给result
+result=${parameter:=word} 如果parameter为空 返回word字符串 赋值给parameter
+${parameter:?word} parameter为空时返回错误信息
+${parameter:+word} parameter为空时什么都不做否则返回word
+
+$[10 -eq 10] 检测两个数是否相等
+$[10 -ne 10] 检测两个数是否不相等
+$[10 -gt 10]
+$[10 -lt 10]
+$[10 -ge 10] 检测左边是否大于右边
+$[10 -le 10] 检测左边是否小于右边
+
+#if语句块
+
+if [条件判断]
+  then
+       业务
+fi
+
+if [ 条件判断式 ]
+	then
+		条件成立时，执行的程序
+	else
+		条件不成立时，执行的另一个程序
+fi
+
+if [ 条件判断式1 ]
+	then
+		当条件判断式1成立时，执行程序1
+elif [ 条件判断式2 ]
+	then
+		当条件判断式2成立时，执行程序2
+  ...
+else
+	当所有条件都不成立时，最后执行此程序
+fi
+
+
+

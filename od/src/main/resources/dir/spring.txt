@@ -1,0 +1,35 @@
+spring的七大模块
+spring core 核心容器提供 Spring 框架的基本功能。核心容器的主要组件是 BeanFactory，它是工厂模式的实现。BeanFactory 使用控制反转 （IOC） 模式将应用程序的配置和依赖性规范与实际的应用程序代码分开
+spring aop 面向切面编程 主要通过其将声明式事务集成到了框架中
+spring Context spring上下文 蹄冻上下文信息 包括校验调度等服务
+spring dao 提供jdbc支持 统一管理不同数据库的支持和连接
+spring orm 提供对象到dao层的映射和通用事务管理
+spring web 建立在应用程序上下文之上 简化了处理多部分请求以及将请求参数绑定到域对象的工作
+Spring MVC 是一个全功能的构建 Web 应用程序的 MVC 实现 model view controller
+maven 支持分模块引入
+
+IOC 控制反转 和 DI 依赖注入 是互相依靠的
+简单理解为 将对象的创建管理交给框架帮你做 只需要注册声明即可
+基本原理来自于依赖倒置
+
+ioc容器 beanFactory 和 beanRegistry
+beanFactory 的三个子类
+ListableBeanFactory 访问容器bean基本信息的若干方法
+HierarchicalBeanFactory 父子级联ioc容器的接口
+ConfigurableBeanFactory 增强了 ioc 容器的可定制性，它定义了设置类装载器、属性编辑器、容器初始化后置处理器等方法
+ConfigurableListableBeanFactory
+AutowireCapableBeanFactory 定义了将容器中的bean按某种规则装配的方法
+
+beanDefinition 用来定义bean的对象与关系定义
+定义了各种对象及其相互关系
+BeanDefinitionReader 解析器
+BeanDefinitionHolder 包装类 用来存储
+BeanDefinitionRegistry 提供手工注册bean的方法
+
+ApplicationContext
+IoC容器的接口类是ApplicationContext，
+很显然它必然继承BeanFactory对Bean规范（最基本的ioc容器的实现）进行定义。
+而ApplicationContext表示的是应用的上下文，除了对Bean的管理外，还至少应该包含了
+
+GenericApplicationContext： 是初始化的时候就创建容器，往后的每次refresh都不会更改
+AbstractRefreshableApplicationContext： AbstractRefreshableApplicationContext及子类的每次refresh都是先清除已有(如果不存在就创建)的容器，然后再重新创建；AbstractRefreshableApplicationContext及子类无法做到GenericApplicationContext混合搭配从不同源头获取bean的定义信息
